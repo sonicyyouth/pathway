@@ -1,7 +1,7 @@
 package pathway
 
 class fisherPathway {
-  var setFile:String = "../resources/GOGeneList.txt"
+  var setFile:String = "./resources/GOGeneList.txt"
 //  var setMat:Array[Array[String]]
   var targetList:Array[String] = Array("")
   var refList:Array[String] = scala.io.Source.fromFile(setFile).getLines().map(_.split("\t").tail).flatten.toSet.toArray

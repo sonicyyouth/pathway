@@ -15,8 +15,8 @@ import shapeless.ops.tuple.Length
 import scala.reflect.ClassTag
 
 object Gsea {
-  var settempFile = "../resources/GeneSetTemp.txt"
-  var exptempFile = "../resources/geneExpTemp.txt"
+  var settempFile = "./resources/GeneSetTemp.txt"
+  var exptempFile = "./resources/geneExpTemp.txt"
 
   case class gseaResult(setName: String,descript:String = null, catalog:String = null,esScore: Float, nes: Float, pValue: Float)
 
@@ -37,8 +37,8 @@ object Gsea {
       case Success(xs) => {
         println(Calendar.getInstance.getTime.toString+"  "+"connected to GeneOntology.org")
 
-        goid.RS2File(xs,"../resources/GOidDescript.txt")
-        goidMap = scala.io.Source.fromFile("../resources/GOidDescript.txt").getLines().map(_.split("\t")).withFilter(_.length == 3).map(i => i(0) -> (i(1),i(2))).toMap 
+        goid.RS2File(xs,"./resources/GOidDescript.txt")
+        goidMap = scala.io.Source.fromFile("./resources/GOidDescript.txt").getLines().map(_.split("\t")).withFilter(_.length == 3).map(i => i(0) -> (i(1),i(2))).toMap 
 
 //        while(xs.next){
 //          map += (xs.getString(1) -> (xs.getString(2),xs.getString(3)))
@@ -110,7 +110,7 @@ object Gsea {
     finalResult
   }
   
-  def gettargetPermCorrfromFile(midrs:Array[Float],file:String = "../resources/geneExpTemp.txt"):Array[(String,Float)] = {
+  def gettargetPermCorrfromFile(midrs:Array[Float],file:String = "./resources/geneExpTemp.txt"):Array[(String,Float)] = {
     val midrsRandom = util.Random.shuffle(midrs.toSeq).toArray
     scala.io.Source.fromFile(file).getLines().map(_.split("\t")).map { ii => (ii.head, pathway.calculation.pearsonCorr(midrsRandom, ii.tail.map(_.toFloat)).toFloat) }.toArray
   }
@@ -121,7 +121,7 @@ object Gsea {
 
 
 
-  def getPGseafromFile(setFile: String = "../resources/GeneSetTemp.txt", nmap: Map[String, Int],nmapSize:Int, pExp: Array[Float]):Array[Float] = {
+  def getPGseafromFile(setFile: String = "./resources/GeneSetTemp.txt", nmap: Map[String, Int],nmapSize:Int, pExp: Array[Float]):Array[Float] = {
     val testSet = scala.io.Source.fromFile(setFile).getLines.map(_.split("\t")).map(i => (i.head, i.tail)).toArray
    // val nmapSize = nmap.size
     testSet.par.map{i => pathway.calculation.gseaPerm(arrayOperater.getSetArray(i._2,nmap,nmapSize),pExp)}.toArray
@@ -155,7 +155,7 @@ object Gsea {
       case None => gseaResult(setName = gs.setName,descript = "None",catalog = "None",esScore = gs.esScore,nes = gs.nes,pValue = gs.pValue)
     }
   }
-  def getSignGO(file:String,outFile:String = "../results/GSEA_Result.txt") = {
+  def getSignGO(file:String,outFile:String = "./results/GSEA_Result.txt") = {
     val result = scala.io.Source.fromFile(file).getLines().map(i => i.split("\t")).map{i => gseaResult(setName = i(0),esScore = i(1).toFloat,nes =i(2).toFloat,pValue = i(3).toFloat)}.toList.sortBy(_.pValue)
     val goid = new pathway.GOquery
     val rs = goid.connect(goid.GOdescriptQuery)
@@ -167,7 +167,7 @@ object Gsea {
       val (d,c) = map(gs.setName)
       gseaResult(setName = gs.setName,descript =  d,catalog = c,esScore = gs.esScore,nes = gs.nes,pValue = gs.pValue)
     }
-    val outFile = "../results/GSEA_Result.txt"
+    val outFile = "./results/GSEA_Result.txt"
     val gseaOut = new PrintWriter(new FileWriter(outFile))
 
     result.map(i => mapDes(i,map)).map(i => Vector(i.setName.toString, i.descript.toString,i.catalog.toString,i.esScore.toString,i.nes.toString,i.pValue.toString).mkString("\t")).foreach(gseaOut.println(_))

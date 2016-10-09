@@ -15,14 +15,14 @@ import java.util.Calendar
   * Created by liuqun on 7/14/16.
   */
 object myTest extends App{
-  //  val gogene = scala.io.Source.fromFile("../resources/GOgeneNoIEA.txt").getLines.drop(1)
+  //  val gogene = scala.io.Source.fromFile("./resources/GOgeneNoIEA.txt").getLines.drop(1)
   //    .map(_.split("\t")).toList.groupBy(_(0))
   //    .map{case(k,v) => (k,v.map(_(4)))}
   //    val GOChild = GOset.getGoSet
   //    val upf1 = new geneGsea
   //    val GoSet = scala.io.Source.fromFile("/Users/liuqun/workspace/test/GOGeneList.txt").getLines().map(i => i.split("\t")).map(i => (i.head, i.tail.toList)).toList
-  var expFile = """../resources/LUAD.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.data.txt"""
-  val geneSetFile = "../resources/GOGeneList.txt"
+  var expFile = """./resources/LUAD.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.data.txt"""
+  val geneSetFile = "./resources/GOGeneList.txt"
   var targetGene = "5976"
 //  val goid = new pathway.GOquery
 //
@@ -44,7 +44,7 @@ object myTest extends App{
 //    res
 //  }
   gseax.take(10).foreach(i => println(i.toString))
-  val resultFile = "../results/GseaResult.txt"
+  val resultFile = "./results/GseaResult.txt"
   val gseaOut = new PrintWriter(new FileWriter(resultFile))
 //  goidFresh.onComplete {
 //    case Success(id) => {
