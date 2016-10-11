@@ -15,6 +15,7 @@ import shapeless.ops.tuple.Length
 import scala.reflect.ClassTag
 import sys.process._
 object Gsea {
+  val gseaCommand = "java -Xmx4G xtools.gsea.Gsea -res /Users/liuqun/workspace/myBio/resources/geneExpLog.txt -cls /Users/liuqun/workspace/myBio/classForGsea.cls#Upf1Low_versus_Upf1High -gmx /Users/liuqun/workspace/myBio/c5.all.v5.2.entrez.gmt -collapse false -mode Max_probe -norm meandiv -nperm 1000 -permute phenotype -rnd_type no_balance -scoring_scheme weighted -rpt_label my_analysis -metric Signal2Noise -sort real -order descending -include_only_symbols true -make_sets true -median false -num 100 -plot_top_x 20 -rnd_seed timestamp -save_rnd_lists false -set_max 500 -set_min 15 -zip_report false -out /Users/liuqun/gsea_home/output/oct11 -gui false"
   var settempFile = "./resources/GeneSetTemp.txt"
   var exptempFile = "./resources/geneExpTemp.txt"
   var expFileforR = "./resources/geneExpLog.txt"
@@ -22,37 +23,41 @@ object Gsea {
   var RoutputFile = "./resources/LimmaPermResults.txt"
   var setDescriptFile = "./resources/GOidDescript.txt"
   var outFile = "./results/GSEA_Result.txt"
-  
+  var gseaFile:String = "./resources/Gseaout.txt"
 
   case class gseaResult(setName: String,descript:String = null, catalog:String = null,esScore: Float, nes: Float, pValue: Float)
 
   case class Gene(Entrez: String, exp: Array[Float])
   
 
-  def getGsea(geneName: String, expFile: String, geneSetFile: String,permN:Int = 1000,inMem:Boolean = true,ByCorrelation:Boolean = false): Array[gseaResult] = {
+  def getGsea(geneName: String, expFile: String, geneSetFile: String,permN:Int = 1000,inMem:Boolean = true,perm:Boolean= false,ByCorrelation:Boolean = false): Array[gseaResult] = {
     println(Calendar.getInstance.getTime.toString+"  "+"Start calculating")
   
     def getPermRsByLimma(gene:Gene,expFile:String,gsSet:Set[String],permN1:Int= permN) = {
       val expList = fileOperater.logExpFile(expFile = expFile,outFile = expFileforR)
 
       val fileToR = new PrintWriter(new FileWriter(RimportFile))
-      fileToR.println(expFileforR)
+      val expFileR = expFileforR.split("/")(2)
+      fileToR.println(expFileR)
       fileToR.println(gene.Entrez)
       fileToR.close()
       //"Rscript limma.R".!
-      //Rcall.eval()
+      if(perm) {
+        Rcall.n = permN
+        Rcall.eval()
+      }
       val res = scala.io.Source.fromFile(RoutputFile).getLines
       val geneN = res.next().split("\t")
       val limma = geneN zip res.next().split("\t").map(_.toFloat)
       
       val corr = limma.sortBy(_._2).reverse
-      val rslst = arrayOperater.filterSetToMat(corr,geneSetFile)
+      val rslst = arrayOperater.filterSetToMat(corr,geneSetFile,gseaFile)
       val testSet = scala.io.Source.fromFile(settempFile).getLines.map(_.split("\t")).map(i => (i.head, i.tail)).toArray  
       val size = corr.length
       val permrs = res.map(_.split("\t").map(_.toFloat)).toArray
       println(permrs.length)
       val permRes:Array[Array[Float]] = {
-        Array.range(0, permrs.length).map {
+        Array.range(0, permN).map {
           ii => {
             val pgeneExp = geneN.zip(permrs(ii)).sortBy(_._2).reverse
             getPGseafromSet(testSet,  pgeneExp, size)
@@ -65,7 +70,7 @@ object Gsea {
     def getPermRsByCorr(gene:Gene,expFile:String,gsSet:Set[String]):Array[gseaResult] = {
       val expList = fileOperater.logExpFile(expFile = expFile,geneName = gene.Entrez,set = gsSet)
       val corr = expList.map{case(k,v) => (k, pathway.calculation.pearsonCorr(gene.exp, v).toFloat)}
-      val rslst = arrayOperater.filterSetToMat(corr,geneSetFile)
+      val rslst = arrayOperater.filterSetToMat(corr,geneSetFile,gseaFile)
       val testSet = scala.io.Source.fromFile(settempFile).getLines.map(_.split("\t")).map(i => (i.head, i.tail)).toArray  
       val size = corr.length
       

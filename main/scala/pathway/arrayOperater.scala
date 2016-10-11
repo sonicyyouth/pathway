@@ -46,7 +46,7 @@ object arrayOperater {
     }
     out
   }
-  def filterSetToMat(corr: Array[(String,Float)], geneSetFile:String, downhold:Int = 20,uphold:Int = 600,outFile: String = "./resources/GeneSetTemp.txt",gseaFile:String = "./resources/Gseaout.txt", filter: Boolean = true) = {
+  def filterSetToMat(corr: Array[(String,Float)], geneSetFile:String,gseaFile:String, downhold:Int = 20,uphold:Int = 600,outFile: String = "./resources/GeneSetTemp.txt", filter: Boolean = true) = {
     val tempout = new PrintWriter(new FileWriter(outFile))
     val gseaout = new PrintWriter(new FileWriter(gseaFile))
     val geneSet = scala.io.Source.fromFile(geneSetFile).getLines.map(_.split("\t")).map(i => (i.head, i.tail)).toArray

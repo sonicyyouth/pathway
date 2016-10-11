@@ -22,7 +22,9 @@ object myTest extends App{
   //    val upf1 = new geneGsea
   //    val GoSet = scala.io.Source.fromFile("/Users/liuqun/workspace/test/GOGeneList.txt").getLines().map(i => i.split("\t")).map(i => (i.head, i.tail.toList)).toList
   var expFile = """./resources/LUAD.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.data.txt"""
-  val geneSetFile = "./resources/GOGeneList.txt"
+  val geneSetFile = "./resources/c2.cp.kegg.v5.2.entrez.set.txt"
+  val resultFile = "./results/GseaResultTest1.txt"
+
   var targetGene = "5976"
 //  val goid = new pathway.GOquery
 //
@@ -35,7 +37,7 @@ object myTest extends App{
 
   //    upf1.geneSet = GoSet
   //    .map(_.split("\t")).toList
-  val gseax = pathway.Gsea.getGsea(targetGene,expFile,geneSetFile,10000)
+  val gseax = pathway.Gsea.getGsea(targetGene,expFile,geneSetFile,100,perm = true)
 //  def myGet(map:Map[String,String],key:String) = {
 //    var res = map.get(key) match{
 //      case Some(x) => x
@@ -44,7 +46,6 @@ object myTest extends App{
 //    res
 //  }
   gseax.take(10).foreach(i => println(i.toString))
-  val resultFile = "./results/GseaResult.txt"
   val gseaOut = new PrintWriter(new FileWriter(resultFile))
 //  goidFresh.onComplete {
 //    case Success(id) => {
